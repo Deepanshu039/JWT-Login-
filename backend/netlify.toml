@@ -3,5 +3,5 @@ functions = "functions"
 
 [[redirects]]
     to="/.netlify/functions/api/"
-    from="/*"
+    from="/"
     status=200 
