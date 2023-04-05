@@ -16,7 +16,7 @@ function App() {
     try {
       console.log("refresh__", user.refreshToken);
       console.log("insideRefreshToken__1");
-      const res = await axios.post("https://jwt-login-demo.netlify.app/refresh", { token: user.refreshToken });
+      const res = await axios.post("https://main--jwt-login-demo.netlify.app/.netlify/functions/api/api/refresh", { token: user.refreshToken });
       console.log("insideRefreshToken__2");
       console.log("res11__", res);
       console.log("res11__2", res.data.accessToken);
@@ -55,7 +55,7 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("https://jwt-login-demo.netlify.app/login", { username, password });
+      const res = await axios.post("https://main--jwt-login-demo.netlify.app/.netlify/functions/api/api/login", { username, password });
       console.log("login--> ", res);
       setUser(res.data);
     } catch (error) {
@@ -71,7 +71,7 @@ function App() {
     console.log("insideDelete", user.token);
     try {
       console.log("insideDelete__1");
-      await axiosJwt.delete("https://jwt-login-demo.netlify.app/users/" + id, {
+      await axiosJwt.delete("https://main--jwt-login-demo.netlify.app/.netlify/functions/api/api/users/" + id, {
         headers: { authorization: "Bearer " + user.token },
       });
       console.log("insideDelete__2");
@@ -83,7 +83,7 @@ function App() {
 
   const handleLogout = async ()=> {
     try{
-      const res= await axios.post("https://jwt-login-demo.netlify.app/logout", {token: user.refreshToken}, {
+      const res= await axios.post("https://main--jwt-login-demo.netlify.app/.netlify/functions/api/api/logout", {token: user.refreshToken}, {
         headers: {authorization: "Bearer " + user.token}
       })
       setLogoutMsg(res.data)
