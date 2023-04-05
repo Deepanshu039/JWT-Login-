@@ -3,6 +3,6 @@ functions = "functions"
 
 [[redirects]]
     from="/"
-    to="/.netlify/functions/api/"
+    to="https://642d0627a678400008ed774e--illustrious-gingersnap-4de0b8.netlify.app/.netlify/functions/api/"
     status=200 
     force= true
