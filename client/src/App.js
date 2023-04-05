@@ -70,6 +70,7 @@ function App() {
       setIsLoading(false);
     } catch (error) {
       // console.log(error.response.data);
+      setIsLoading(false);  
       setInvalidMsg(error.response.data);
       // console.log(error);
     }
