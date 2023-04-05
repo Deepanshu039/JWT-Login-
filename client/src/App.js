@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./App.css";
+import LoadingSpinner from "./LoadingSpiner.js";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 
@@ -11,12 +12,16 @@ function App() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const refreshToken = async () => {
     try {
       console.log("refresh__", user.refreshToken);
       console.log("insideRefreshToken__1");
-      const res = await axios.post("https://main--jwt-login-demo.netlify.app/.netlify/functions/api/api/refresh", { token: user.refreshToken });
+      const res = await axios.post(
+        "https://main--jwt-login-demo.netlify.app/.netlify/functions/api/api/refresh",
+        { token: user.refreshToken }
+      );
       console.log("insideRefreshToken__2");
       console.log("res11__", res);
       console.log("res11__2", res.data.accessToken);
@@ -25,7 +30,7 @@ function App() {
         token: res.data.accessToken,
         refreshToken: res.data.refreshToken,
       });
-      return res.data
+      return res.data;
     } catch (err) {
       console.log(err);
     }
@@ -42,7 +47,7 @@ function App() {
       if (decodeToken.exp * 1000 < currentDate.getTime()) {
         console.log("inside##");
         const data = await refreshToken();
-        console.log("data@@", data)
+        console.log("data@@", data);
         config.headers["authorization"] = "Bearer " + data.accessToken;
       }
       return config;
@@ -54,10 +59,15 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
-      const res = await axios.post("https://main--jwt-login-demo.netlify.app/.netlify/functions/api/api/login", { username, password });
+      const res = await axios.post(
+        "https://main--jwt-login-demo.netlify.app/.netlify/functions/api/api/login",
+        { username, password }
+      );
       console.log("login--> ", res);
       setUser(res.data);
+      setIsLoading(false);
     } catch (error) {
       // console.log(error.response.data);
       setInvalidMsg(error.response.data);
@@ -66,87 +76,114 @@ function App() {
   };
 
   const handleDelete = async (id) => {
+    setIsLoading(true);
     setSuccess(false);
     setError(false);
     console.log("insideDelete", user.token);
     try {
       console.log("insideDelete__1");
-      await axiosJwt.delete("https://main--jwt-login-demo.netlify.app/.netlify/functions/api/api/users/" + id, {
-        headers: { authorization: "Bearer " + user.token },
-      });
+      await axiosJwt.delete(
+        "https://main--jwt-login-demo.netlify.app/.netlify/functions/api/api/users/" +
+          id,
+        {
+          headers: { authorization: "Bearer " + user.token },
+        }
+      );
       console.log("insideDelete__2");
       setSuccess(true);
+      setIsLoading(false);
     } catch (err) {
+      setIsLoading(false);
       setError(true);
     }
   };
 
-  const handleLogout = async ()=> {
-    try{
-      const res= await axios.post("https://main--jwt-login-demo.netlify.app/.netlify/functions/api/api/logout", {token: user.refreshToken}, {
-        headers: {authorization: "Bearer " + user.token}
-      })
-      setLogoutMsg(res.data)
-      console.log(res.data)
+  const handleLogout = async () => {
+    setIsLoading(true);
+    try {
+      const res = await axiosJwt.post(
+        "https://main--jwt-login-demo.netlify.app/.netlify/functions/api/api/logout",
+        { token: user.refreshToken },
+        {
+          headers: { authorization: "Bearer " + user.token },
+        }
+      );
+      setLogoutMsg(res.data);
+      setUser(null);
+      setIsLoading(false);
+      console.log(res.data);
       setTimeout(() => {
-        setUser(null)
-        setInvalidMsg(null)
-        setLogoutMsg(null)
-        setSuccess(false)
-        setError(false)
+        setUser(null);
+        setInvalidMsg(null);
+        setLogoutMsg(null);
+        setSuccess(false);
+        setError(false);
       }, 1000);
-    } catch (err){
-      console.log(err)
+    } catch (err) {
+      console.log(err);
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="container">
       {user ? (
-        <div className="home">
-          <span>
-            Welcome to the <b>{user.isAdmin ? "admin" : "user"}</b> dashboard{" "}
-            <b>{user.username}</b>.
-          </span>
-          <span>Delete Users:</span>
-          <button className="deleteButton" onClick={() => handleDelete(1)}>
-            Delete John
-          </button>
-          <button className="deleteButton" onClick={() => handleDelete(2)}>
-            Delete Jane
-          </button>
-          {error && (
-            <span className="error">
-              You are not allowed to delete this user!
+        isLoading ? (
+          <div className="login">
+            <LoadingSpinner />
+          </div>
+        ) : (
+          <div className="home">
+            <span>
+              Welcome to the <b>{user.isAdmin ? "admin" : "user"}</b> dashboard{" "}
+              <b>{user.username}</b>.
             </span>
-          )}
-          {success && (
-            <span className="success">
-              User has been deleted successfully...
-            </span>
-          )}
-          {logoutMsg && <p className="error">{logoutMsg}</p>}
-          <button className="logoutButton" onClick={()=> handleLogout()}>logout</button>
-        </div>
+            <span>Delete Users:</span>
+            <button className="deleteButton" onClick={() => handleDelete(1)}>
+              Delete John
+            </button>
+            <button className="deleteButton" onClick={() => handleDelete(2)}>
+              Delete Jane
+            </button>
+            {error && (
+              <span className="error">
+                You are not allowed to delete this user!
+              </span>
+            )}
+            {success && (
+              <span className="success">
+                User has been deleted successfully...
+              </span>
+            )}
+            {logoutMsg && <p className="error">{logoutMsg}</p>}
+            <button className="logoutButton" onClick={() => handleLogout()}>
+              logout
+            </button>
+          </div>
+        )
       ) : (
         <div className="login">
-          <form onSubmit={handleSubmit}>
-            <span className="formTitle">JWT Login</span>
-            <input
-              type="text"
-              placeholder="username"
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <input
-              type="current-password"
-              placeholder="password"
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            {invalidMsg && <p className="error">{invalidMsg}</p>}
-            <button type="submit" className="submitButton">
-              Login
-            </button>
-          </form>
+          {isLoading ? (
+            <LoadingSpinner />
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <span className="formTitle">JWT Login</span>
+              <input
+                type="text"
+                placeholder="username"
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              <input
+                type="current-password"
+                placeholder="password"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              {invalidMsg && <p className="error">{invalidMsg}</p>}
+              <button type="submit" className="submitButton">
+                Login
+              </button>
+            </form>
+          )}
         </div>
       )}
     </div>
