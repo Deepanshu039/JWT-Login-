@@ -2,10 +2,12 @@ const express = require("express");
 const serverless= require('serverless-http')
 const jwt = require("jsonwebtoken");
 const app = express();
+const cors = require('cors')
 
 const router= express.Router();
 
 router.use(express.json());
+app.use(cors());
 
 const users = [
   {
