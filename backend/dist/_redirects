@@ -1,1 +1,5 @@
-/    /.netlify/functions/api/
+/home      /.netlify/functions/api/
+/login     /.netlify/functions/api/api/login
+/refresh   /.netlify/functions/api/api/refresh
+/logout    /.netlify/functions/api/api/logout
+/users/*   /.netlify/functions/api/api/users/:splat
